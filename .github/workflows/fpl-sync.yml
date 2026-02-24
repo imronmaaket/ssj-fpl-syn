@@ -1,0 +1,29 @@
+name: SSJ-Fantacy FPL Sync
+
+on:
+  schedule:
+    - cron: '0 * * * *'      # ทุกชั่วโมง ตลอด 24 ชม.
+    - cron: '*/30 14-23 * * 6'  # ทุก 30 นาที วันเสาร์ช่วงบ่าย (ช่วง match day UK time)
+    - cron: '*/30 14-23 * * 0'  # ทุก 30 นาที วันอาทิตย์ช่วงบ่าย
+  workflow_dispatch:            # กด manual ได้ตลอดเวลา
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync FPL Data to Gist
+        run: node fpl-sync.js
+        env:
+          FPL_LEAGUE_ID: ${{ secrets.FPL_LEAGUE_ID }}
+          GIST_TOKEN:    ${{ secrets.GIST_TOKEN }}
+          GIST_ID:       ${{ secrets.GIST_ID }}
