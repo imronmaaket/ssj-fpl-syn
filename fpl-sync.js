@@ -101,12 +101,23 @@ async function main() {
       results.forEach(r => {
         if (r.status === 'fulfilled') {
           const [entryId, d] = r.value;
+          // คำนวณ GW points จาก live player points ใน picks array
+          // วิธีนี้แน่นอน 100% ไม่ต้องพึ่ง entry_history.points ที่ไม่ชัดเจน
+          const allPicks = d.picks || [];
+          const liveGWpts = allPicks
+            .filter(p => p.position <= 11)  // เฉพาะตัวที่ลงสนาม
+            .reduce((sum, p) => {
+              const el = elemMap[p.element] || {};
+              return sum + (el.event_points || 0) * p.multiplier;
+            }, 0);
+          const transferCost = d.entry_history?.event_transfers_cost || 0; // -4, -8 หรือ 0
+          const liveNetPts   = liveGWpts + transferCost; // หักค่าโอนแล้ว
+
           picksMap[entryId] = {
-            chip:              d.active_chip || null,
-            event_transfers:   d.entry_history?.event_transfers || 0,
-            transfer_cost:     d.entry_history?.event_transfers_cost || 0, // ค่าโอน GW นี้ (ติดลบ)
-            gw_points_raw:     d.entry_history?.points || 0,  // ก่อนหักโอน (live)
-            gw_points_net:     (d.entry_history?.points || 0) + (d.entry_history?.event_transfers_cost || 0), // หักโอนแล้ว
+            chip:           d.active_chip || null,
+            transfer_cost:  transferCost,   // ค่าโอน เช่น -4, -8
+            gw_points_live: liveGWpts,      // คะแนน live ก่อนหักโอน (sum จาก players)
+            gw_points_net:  liveNetPts,     // คะแนน live หักโอนแล้ว ← ใช้ตัวนี้
             picks: (d.picks||[]).map(p => {
               const el = elemMap[p.element]||{};
               const tm = teamMap[el.team]||{};
