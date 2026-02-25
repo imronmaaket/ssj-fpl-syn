@@ -148,10 +148,9 @@ async function main() {
         gw_points: m.event_total,
         history: (hist?.current || []).map(g => ({
           gw:             g.event,
-          points:         g.points,
-          transfers_cost: g.event_transfers_cost || 0,
-          net_points:     g.points + (g.event_transfers_cost || 0),
-          total:          g.total_points,
+          points:         g.points,            // คะแนน GW นี้ (FPL หักค่าโอนให้แล้ว)
+          transfers_cost: g.event_transfers_cost || 0, // ค่าโอน เช่น -4, -8 (แสดงผลเฉยๆ)
+          total:          g.total_points,       // คะแนนสะสมตลอดซีซั่น (ตัวนี้ถูกต้องที่สุด)
           rank:           g.rank,
           chip:           g.active_chip || null,
         })),
