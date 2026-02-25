@@ -147,11 +147,13 @@ async function main() {
         total:     m.total,
         gw_points: m.event_total,
         history: (hist?.current || []).map(g => ({
-          gw:     g.event,
-          points: g.points,
-          total:  g.total_points,
-          rank:   g.rank,
-          chip:   g.active_chip || null,
+          gw:             g.event,
+          points:         g.points,
+          transfers_cost: g.event_transfers_cost || 0,
+          net_points:     g.points + (g.event_transfers_cost || 0),
+          total:          g.total_points,
+          rank:           g.rank,
+          chip:           g.active_chip || null,
         })),
         picks: picksMap[m.entry] || null,
       };
