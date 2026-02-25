@@ -102,7 +102,11 @@ async function main() {
         if (r.status === 'fulfilled') {
           const [entryId, d] = r.value;
           picksMap[entryId] = {
-            chip: d.active_chip || null,
+            chip:              d.active_chip || null,
+            event_transfers:   d.entry_history?.event_transfers || 0,
+            transfer_cost:     d.entry_history?.event_transfers_cost || 0, // ค่าโอน GW นี้ (ติดลบ)
+            gw_points_raw:     d.entry_history?.points || 0,  // ก่อนหักโอน (live)
+            gw_points_net:     (d.entry_history?.points || 0) + (d.entry_history?.event_transfers_cost || 0), // หักโอนแล้ว
             picks: (d.picks||[]).map(p => {
               const el = elemMap[p.element]||{};
               const tm = teamMap[el.team]||{};
